@@ -82,10 +82,10 @@ function Read(key, db_path) {
     const obj = preprocess(key, db_path);
     if (obj["status"]) {
         delete obj["data"][`${key}`]["CreatedAt"];
-        console.log(obj["data"][`${key}`]);
+        return (obj["data"][`${key}`]);
     }
     else {
-        console.log(obj["data"]);
+        return (obj["data"]);
     }
 }
 
@@ -100,13 +100,13 @@ function Delete(key, db_path) {
         delete obj["data"][`${key}`];
         const data = JSON.stringify(obj["data"]);
         fs.writeFileSync(datapath, data);
-        console.log("Deleted Succussfully");
+        return ("Deleted Succussfully");
         // return({
 
         // });
     }
     else {
-        console.log(obj["data"]);
+        return (obj["data"]);
     }
 }
 
