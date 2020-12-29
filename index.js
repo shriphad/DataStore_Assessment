@@ -8,7 +8,7 @@ const Default_path = './Database/db.json';
 
 app.get(['/read', '/read/:key'], function (req, res) {
     if (!req.params.key && !req.query.key) {
-        res.send("Please mention key!<br><br>Your request should be in this format =>  http://localhost:3000/read/The_Key_You_Want_To_Read")
+        res.send("Please mention key!<br><br>Your request should be in either of the formats<br> =>  http://localhost:3000/read/The_Key_You_Want_To_Read <br><strong>or</strong><br> =>  http://localhost:3000/read?key=The_Key_You_Want_To_Read")
     }
     else {
         const key = req.params.key || req.query.key;
@@ -18,7 +18,7 @@ app.get(['/read', '/read/:key'], function (req, res) {
 
 app.delete(['/delete', '/delete/:key'], function (req, res) {
     if (!req.params.key && !req.query.key) {
-        res.send("Please mention key!<br><br>Your request should be in this format =>  http://localhost:3000/read/The_Key_You_Want_To_Delete")
+        res.send("Please mention key!<br><br>Your request should be in either of the formats<br> =>  http://localhost:3000/delete/The_Key_You_Want_To_Delete <br><strong>or</strong><br> =>  http://localhost:3000/delete?key=The_Key_You_Want_To_Delete")
     }
     else {
         const key = req.params.key || req.query.key;

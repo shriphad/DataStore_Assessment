@@ -27,7 +27,9 @@ const preprocess = (key, db_path) => {
     else {
 
         try {
+            //lock
             const JSONdata = require(datapath);
+            //unlock
             if (JSONdata.hasOwnProperty(key)) {
                 if (JSONdata[`${key}`].hasOwnProperty("Time-To-Live")) {
                     if (Time_to_live(JSONdata[`${key}`])) {
@@ -89,7 +91,44 @@ function Read(key, db_path) {
     }
 }
 
-function Create() {
+function Create(data, db_path) {
+    datatype = path.extname(db_path).toLowerCase();
+    datapath = path.resolve(path.dirname(db_path), path.basename(db_path, path.extname(db_path)) + datatype);
+    if (typeof (data) === "object") {
+        const size = Object.keys(data).length;
+        if (size > 1000000000)
+            return ("Limit exceeded! Size of file is more than 1GB");
+        for (const i in data) {
+            if (typeof (i) !== "string")
+                return ("Key should always be a string");
+            if (i.length > 32)
+                return ("Key cannot be more than 32 characters");
+            if (typeof (data[i]) !== "object")
+                return ("Value must be in a JSON format");
+            const ValueSize = Object.keys(data[i]).length;
+            if (ValueSize > 16384)
+                return ("The value cannot be more than 16KB");
+        }
+
+        //lock
+        fs.stat(datapath, function (err, stats) {
+            if (stats.isDirectory()) {
+                const JSONdata = require(datapath);
+                for (let key in data) if (key in JSONdata) return ("Key is already Present in DataStore");
+
+                fs.appendFile(datapath, data, "utf8");
+            }
+            else {
+                console.log("create and appending");
+                fs.appendFile(datapath, data, "utf8");
+            }
+        });
+
+        //unlock
+    }
+    else {
+        return ('Incorrect Data format, Only JSON is accepted!')
+    }
 
 }
 
@@ -99,11 +138,10 @@ function Delete(key, db_path) {
     if (obj["status"]) {
         delete obj["data"][`${key}`];
         const data = JSON.stringify(obj["data"]);
-        fs.writeFileSync(datapath, data);
+        //lock
+        fs.writeFile(datapath, data);
+        //unlock
         return ("Deleted Succussfully");
-        // return({
-
-        // });
     }
     else {
         return (obj["data"]);
