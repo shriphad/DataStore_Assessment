@@ -1,6 +1,8 @@
 const path = require('path');
 const fs = require('fs');
+const lockfile = require('proper-lockfile');
 
+var exists = { "data": "Successfully inserted the value", "status": true };
 
 const Time_to_live = (obj) => {
     const datetime = new Date();
@@ -10,6 +12,18 @@ const Time_to_live = (obj) => {
     if (remaining <= 0) return false;
     else return true;
 };
+
+const isExists = (data, JSONdata) => {
+    for (const key in data) {
+        if (key in JSONdata) {
+            exists["data"] = "Key is already inserted"
+            exists["status"] = false;
+            return (false);
+        }
+    }
+
+    return true;
+}
 
 const preprocess = (key, db_path) => {
 
@@ -21,7 +35,7 @@ const preprocess = (key, db_path) => {
         //console.log(datapath);
         return ({
             status: false,
-            data: 'Data should be in JSON format'
+            data: 'Data should be in JSON format or Mention file name with .json in the given directory'
         });
     }
     else {
@@ -94,6 +108,13 @@ function Read(key, db_path) {
 function Create(data, db_path) {
     datatype = path.extname(db_path).toLowerCase();
     datapath = path.resolve(path.dirname(db_path), path.basename(db_path, path.extname(db_path)) + datatype);
+    try {
+        data = JSON.parse(data);
+    } catch (e) {
+        console.log(e);
+        return ("Incorrect Data format, Only JSON is accepted! or Directory not found!");
+    }
+
     if (typeof (data) === "object") {
         const size = Object.keys(data).length;
         if (size > 1000000000)
@@ -103,30 +124,58 @@ function Create(data, db_path) {
                 return ("Key should always be a string");
             if (i.length > 32)
                 return ("Key cannot be more than 32 characters");
-            if (typeof (data[i]) !== "object")
+            try {
+                data1 = JSON.parse(JSON.stringify(data[i]));
+            } catch (e) {
+                return ("Incorrect Data format");
+            }
+
+            if (typeof (data1) !== "object")
                 return ("Value must be in a JSON format");
-            const ValueSize = Object.keys(data[i]).length;
+            const ValueSize = Object.keys(data1).length;
             if (ValueSize > 16384)
                 return ("The value cannot be more than 16KB");
+            const date = new Date();
+            data[i]["CreatedAt"] = date;
         }
 
         //lock
-        fs.stat(datapath, function (err, stats) {
-            if (stats.isDirectory()) {
-                const JSONdata = require(datapath);
-                for (let key in data) if (key in JSONdata) return ("Key is already Present in DataStore");
 
-                fs.appendFile(datapath, data, "utf8");
-            }
-            else {
-                console.log("create and appending");
-                fs.appendFile(datapath, data, "utf8");
-            }
-        });
+        lockfile.lock(path.resolve(path.dirname(db_path)))
+            .then((release) => {
+                if (fs.existsSync(datapath)) {
+                    const JSONdata = require(datapath);
+                    if (isExists(data, JSONdata)) { //If key not exists
+                        Object.assign(JSONdata, data);
+                        const append = JSON.stringify(JSONdata);
+                        fs.writeFile(datapath, append, (err) => { });
+                        exists["data"] = "Successfully inserted the value";
+                    }
+                }
+                else {
+                    //console.log("create and adding");
+                    const append = JSON.stringify(data);
+                    fs.appendFile(datapath, append, (err) => { });
+                    exists["data"] = "Successfully inserted the value";
+                }
 
+                return release();
+            })
+            .catch((e) => {
+                //console.error(e.code)
+                if (e.code === 'ENOENT') {
+                    exists["data"] = "Directory Not found";
+                }
+            });
         //unlock
+
+
+        // let returnValue = exists["data"];
+        // exists["data"] = "";
+        return (exists["data"]);
     }
     else {
+        //console.log(typeof (JSON.parse(data)), data);
         return ('Incorrect Data format, Only JSON is accepted!')
     }
 
@@ -139,7 +188,7 @@ function Delete(key, db_path) {
         delete obj["data"][`${key}`];
         const data = JSON.stringify(obj["data"]);
         //lock
-        fs.writeFile(datapath, data);
+        fs.writeFile(datapath, data, (err) => { });
         //unlock
         return ("Deleted Succussfully");
     }
