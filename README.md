@@ -17,7 +17,7 @@ Build a file-based key-value data store that supports the basic CRD (create, rea
 
 ## How to Use it as a Library
 
-This Application only allows three methods those are:
+This Application only allows three functions those are:
 
 1. Create
 2. Read
@@ -25,7 +25,7 @@ This Application only allows three methods those are:
 
 ### <strong>Create</strong>
 
-<strong>This method only supports POST method</strong>, this method only accepts JSON format. The Key should always be a string capped at 32chars and value is always JSON capped at 16KB. Create cannot be invoked for an existing key. If key is already present in the datastore then appropriate message is shown.
+<strong>This function only supports POST method</strong>, this method only accepts JSON format. The Key should always be a string capped at 32chars and value is always JSON capped at 16KB. Create cannot be invoked for an existing key. If key is already present in the datastore then appropriate message is shown.
 
 This Method can be imported from CRD library as
 
@@ -36,7 +36,7 @@ CRD.Create(key_to_be_inserted, data_path_of_your_datastore);
 
 ### <strong>Read</strong>
 
-<strong>This method only supports GET method</strong>, this method accepts key from the user and searches for the key in the DataStore and returns the value for the key, if not found then appropriate message is shown. If any value has `Time-To-Live` property, Once the Time-To-Live for a key has expired,
+<strong>This function only supports GET method</strong>, this method accepts key from the user and searches for the key in the DataStore and returns the value for the key, if not found then appropriate message is shown. If any value has `Time-To-Live` property, Once the Time-To-Live for a key has expired,
 the key will no longer be available for Read or Delete operations.
 
 This Method can be imported from CRD library as
@@ -48,7 +48,7 @@ CRD.Read(key_to_be_searched);
 
 ### <strong>Delete</strong>
 
-<strong>This method only supports DELETE method</strong>, this method accepts key from the user and searches for the key in the DataStore and deletes the value for the key, if not found then appropriate message is shown.. If any value has `Time-To-Live` property, Once the Time-To-Live for a key has expired,
+<strong>This function only supports DELETE method</strong>, this method accepts key from the user and searches for the key in the DataStore and deletes the value for the key, if not found then appropriate message is shown.. If any value has `Time-To-Live` property, Once the Time-To-Live for a key has expired,
 the key will no longer be available for Read or Delete operations.
 
 This Method can be imported from CRD library.
@@ -62,9 +62,9 @@ CRD.Delete(key_to_be_deleted);
 
 API supports three function those are
 
-1. `GET` => This method is used read the data from datastore using the key.
-2. `POST` => This method is used create and store data into datastore.
-3. `DELETE` => This method is used delete the data from datastore using the key.
+1. `GET` => This method is used to <strong>read</strong> the data from datastore using the key.
+2. `POST` => This method is used to <strong>create</strong> and store data into datastore.
+3. `DELETE` => This method is used to <strong>delete</strong> the data from datastore using the key.
 
 ### Note:
 
@@ -72,6 +72,7 @@ The following are not allowed in the application
 
 1. Use appropriate method for CRD, that is `GET` is used for <strong>Read</strong> function, `POST` is used for <strong>Create</strong> function and `DELETE` is used for <strong>Delete</strong> function. if any other method is used it will show you the help page.
 2. Please use a valid directory of your datastore.
+3. If an absolute path is given then the file name should have `.json` extension.
 
 ### <strong>Create</strong> using API
 
