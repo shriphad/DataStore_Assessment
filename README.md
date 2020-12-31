@@ -72,6 +72,7 @@ The following are not allowed in the application
 
 1. Use appropriate method for CRD, that is `GET` is used for <strong>Read</strong> function, `POST` is used for <strong>Create</strong> function and `DELETE` is used for <strong>Delete</strong> function. if any other method is used it will show you the help page.
 2. Please use a valid directory of your datastore.
+3. If an absolute path is given then the file name should have `.json` extension.
 
 ### <strong>Create</strong> using API
 
