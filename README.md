@@ -62,9 +62,9 @@ CRD.Delete(key_to_be_deleted);
 
 API supports three function those are
 
-1. `GET` => This method is used read the data from datastore using the key.
-2. `POST` => This method is used create and store data into datastore.
-3. `DELETE` => This method is used delete the data from datastore using the key.
+1. `GET` => This method is used to <strong>read</strong> the data from datastore using the key.
+2. `POST` => This method is used to <strong>create</strong> and store data into datastore.
+3. `DELETE` => This method is used to <strong>delete</strong> the data from datastore using the key.
 
 ### Note:
 
