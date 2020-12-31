@@ -1,14 +1,15 @@
 const path = require('path');
 const fs = require('fs');
-const lockfile = require('proper-lockfile');
 
-var exists = { "data": "Successfully inserted the value", "status": true };
+
+var exists = { "data": "", "status": false };
 
 const Time_to_live = (obj) => {
-    const datetime = new Date();
+    const datetime = new Date().getTime() / 1000;
     const created = new Date(obj["CreatedAt"]).getTime() / 1000;
     const timeToLive = obj["Time-To-Live"];
     const remaining = (created + timeToLive) - datetime;
+    //console.log(datetime, created, timeToLive, remaining);
     if (remaining <= 0) return false;
     else return true;
 };
@@ -42,7 +43,8 @@ const preprocess = (key, db_path) => {
 
         try {
             //lock
-            const JSONdata = require(datapath);
+            //const JSONdata = require(datapath);
+            const JSONdata = JSON.parse(fs.readFileSync(datapath, "utf8"));
             //unlock
             if (JSONdata.hasOwnProperty(key)) {
                 if (JSONdata[`${key}`].hasOwnProperty("Time-To-Live")) {
@@ -141,37 +143,25 @@ function Create(data, db_path) {
 
         //lock
 
-        lockfile.lock(path.resolve(path.dirname(db_path)))
-            .then((release) => {
-                if (fs.existsSync(datapath)) {
-                    const JSONdata = require(datapath);
-                    if (isExists(data, JSONdata)) { //If key not exists
-                        Object.assign(JSONdata, data);
-                        const append = JSON.stringify(JSONdata);
-                        fs.writeFile(datapath, append, (err) => { });
-                        exists["data"] = "Successfully inserted the value";
-                    }
-                }
-                else {
-                    //console.log("create and adding");
-                    const append = JSON.stringify(data);
-                    fs.appendFile(datapath, append, (err) => { });
-                    exists["data"] = "Successfully inserted the value";
-                }
+        if (fs.existsSync(datapath)) {
+            const JSONdata = require(datapath);
+            if (isExists(data, JSONdata)) { //If key not exists
+                Object.assign(JSONdata, data);
+                const append = JSON.stringify(JSONdata);
+                fs.writeFileSync(datapath, append);
+                exists["data"] = "Successfully inserted the value";
+            }
+            else {
+                exists["data"] = "Key Already Present in data";
+            }
+        }
+        else {
+            //console.log("create and adding");
+            const append = JSON.stringify(data);
+            fs.appendFile(datapath, append, (err) => { });
+            exists["data"] = "Successfully inserted the value";
+        }
 
-                return release();
-            })
-            .catch((e) => {
-                //console.error(e.code)
-                if (e.code === 'ENOENT') {
-                    exists["data"] = "Directory Not found";
-                }
-            });
-        //unlock
-
-
-        // let returnValue = exists["data"];
-        // exists["data"] = "";
         return (exists["data"]);
     }
     else {
@@ -188,7 +178,7 @@ function Delete(key, db_path) {
         delete obj["data"][`${key}`];
         const data = JSON.stringify(obj["data"]);
         //lock
-        fs.writeFile(datapath, data, (err) => { });
+        fs.writeFileSync(datapath, data);
         //unlock
         return ("Deleted Succussfully");
     }
