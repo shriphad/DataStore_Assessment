@@ -2,14 +2,12 @@ const path = require('path');
 const fs = require('fs');
 
 
-var exists = { "data": "", "status": false };
 
 const Time_to_live = (obj) => {
     const datetime = new Date().getTime() / 1000;
     const created = new Date(obj["CreatedAt"]).getTime() / 1000;
     const timeToLive = obj["Time-To-Live"];
     const remaining = (created + timeToLive) - datetime;
-    //console.log(datetime, created, timeToLive, remaining);
     if (remaining <= 0) return false;
     else return true;
 };
@@ -17,8 +15,6 @@ const Time_to_live = (obj) => {
 const isExists = (data, JSONdata) => {
     for (const key in data) {
         if (key in JSONdata) {
-            exists["data"] = "Key is already inserted"
-            exists["status"] = false;
             return (false);
         }
     }
@@ -28,12 +24,9 @@ const isExists = (data, JSONdata) => {
 
 const preprocess = (key, db_path) => {
 
-    datatype = path.extname(db_path).toLowerCase();
-    datapath = path.resolve(path.dirname(db_path), path.basename(db_path, path.extname(db_path)) + datatype);
-    //console.log(datapath);
+    const datatype = path.extname(db_path).toLowerCase();
+    const datapath = path.resolve(path.dirname(db_path), path.basename(db_path, path.extname(db_path)) + datatype);
     if (datatype !== ".json") {
-        //console.log(datatype, typeof (datatype));
-        //console.log(datapath);
         return ({
             status: false,
             data: 'Data should be in JSON format or Mention file name with .json in the given directory'
@@ -42,10 +35,8 @@ const preprocess = (key, db_path) => {
     else {
 
         try {
-            //lock
-            //const JSONdata = require(datapath);
+
             const JSONdata = JSON.parse(fs.readFileSync(datapath, "utf8"));
-            //unlock
             if (JSONdata.hasOwnProperty(key)) {
                 if (JSONdata[`${key}`].hasOwnProperty("Time-To-Live")) {
                     if (Time_to_live(JSONdata[`${key}`])) {
@@ -77,7 +68,6 @@ const preprocess = (key, db_path) => {
             }
         }
         catch (err) {
-            //console.log(err);
             if (err.code === "MODULE_NOT_FOUND") {
                 return ({
                     status: false,
@@ -85,10 +75,9 @@ const preprocess = (key, db_path) => {
                 });
             }
             else {
-                console.log(err);
                 return ({
                     status: false,
-                    data: "error occured"
+                    data: "File or Directory not Found"
                 });
             }
         }
@@ -141,7 +130,6 @@ function Create(data, db_path) {
             data[i]["CreatedAt"] = date;
         }
 
-        //lock
 
         if (fs.existsSync(datapath)) {
             const JSONdata = require(datapath);
@@ -149,23 +137,21 @@ function Create(data, db_path) {
                 Object.assign(JSONdata, data);
                 const append = JSON.stringify(JSONdata);
                 fs.writeFileSync(datapath, append);
-                exists["data"] = "Successfully inserted the value";
+                return ("Successfully inserted the value");
             }
             else {
-                exists["data"] = "Key Already Present in data";
+                return ("Key Already Present in data");
             }
         }
         else {
-            //console.log("create and adding");
+            if (!fs.existsSync(path.resolve(path.dirname(db_path))))
+                return ("Directory not found")
             const append = JSON.stringify(data);
-            fs.appendFile(datapath, append, (err) => { });
-            exists["data"] = "Successfully inserted the value";
+            fs.appendFileSync(datapath, append);
+            return ("Successfully inserted the value");
         }
-
-        return (exists["data"]);
     }
     else {
-        //console.log(typeof (JSON.parse(data)), data);
         return ('Incorrect Data format, Only JSON is accepted!')
     }
 
@@ -174,12 +160,12 @@ function Create(data, db_path) {
 
 function Delete(key, db_path) {
     const obj = preprocess(key, db_path);
+    const datatype = path.extname(db_path).toLowerCase();
+    const datapath = path.resolve(path.dirname(db_path), path.basename(db_path, path.extname(db_path)) + datatype);
     if (obj["status"]) {
         delete obj["data"][`${key}`];
         const data = JSON.stringify(obj["data"]);
-        //lock
         fs.writeFileSync(datapath, data);
-        //unlock
         return ("Deleted Succussfully");
     }
     else {
