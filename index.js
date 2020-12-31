@@ -1,3 +1,4 @@
+//Author: Shriphad Rao
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -5,6 +6,7 @@ const CRD = require('./CRD/CRD');
 
 const args = process.argv[2];
 const Default_path = './Database/db.json';
+const Data_path = args || Default_path;
 
 app.post(['/create', '/create/:key'], function (req, res) {
     if (!req.params.key && !req.query.key) {
@@ -12,7 +14,7 @@ app.post(['/create', '/create/:key'], function (req, res) {
     }
     else {
         const key = req.params.key || req.query.key;
-        res.send(CRD.Create(key, args || Default_path));
+        res.send(CRD.Create(key, Data_path));
     }
 });
 
@@ -22,7 +24,7 @@ app.get(['/read', '/read/:key'], function (req, res) {
     }
     else {
         const key = req.params.key || req.query.key;
-        res.send(CRD.Read(key, args || Default_path));
+        res.send(CRD.Read(key, Data_path));
     }
 });
 
@@ -32,7 +34,7 @@ app.delete(['/delete', '/delete/:key'], function (req, res) {
     }
     else {
         const key = req.params.key || req.query.key;
-        res.send(CRD.Delete(key, args || Default_path));
+        res.send(CRD.Delete(key, Data_path));
     }
 });
 
