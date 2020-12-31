@@ -39,7 +39,7 @@ app.delete(['/delete', '/delete/:key'], function (req, res) {
 });
 
 app.all(['/', '/help', '*'], function (req, res) {
-    res.send('Hello World!')
+    res.send('404 not found, Please use appropriate function, that is GET for Read, POST for Create and DELETE for Delete functions')
 });
 
 app.listen(port, () => {
