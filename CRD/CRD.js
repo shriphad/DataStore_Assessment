@@ -27,7 +27,7 @@ const preprocess = (key, db_path) => {
 
     const datatype = path.extname(db_path).toLowerCase();
     const datapath = path.resolve(path.dirname(db_path), path.basename(db_path, path.extname(db_path)) + datatype);
-    console.log(datatype);
+    //console.log(datatype);
     if ((datatype !== ".json") && (datatype !== ".txt")) {
         return ({
             status: false,
