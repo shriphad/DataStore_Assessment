@@ -27,10 +27,11 @@ const preprocess = (key, db_path) => {
 
     const datatype = path.extname(db_path).toLowerCase();
     const datapath = path.resolve(path.dirname(db_path), path.basename(db_path, path.extname(db_path)) + datatype);
-    if (datatype !== ".json") {
+    console.log(datatype);
+    if ((datatype !== ".json") && (datatype !== ".txt")) {
         return ({
             status: false,
-            data: 'Data should be in JSON format or Mention file name with .json in the given directory'
+            data: 'Data should be in JSON format or Mention file name with (.json or .txt) extention in the given directory'
         });
     }
     else {
@@ -103,7 +104,7 @@ function Create(data, db_path) {
     try {
         data = JSON.parse(data);
     } catch (e) {
-        console.log(e);
+        //console.log(e);
         return ("Incorrect Data format, Only JSON is accepted! or Directory not found!");
     }
 
@@ -133,7 +134,7 @@ function Create(data, db_path) {
 
 
         if (fs.existsSync(datapath)) {
-            const JSONdata = require(datapath);
+            const JSONdata = JSON.parse(fs.readFileSync(datapath, "utf8"));
             if (isExists(data, JSONdata)) { //If key not exists
                 Object.assign(JSONdata, data);
                 const append = JSON.stringify(JSONdata);
