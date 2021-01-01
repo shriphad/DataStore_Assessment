@@ -43,7 +43,7 @@ This Method can be imported from CRD library as
 
 ```javascript
 const CRD = require("./CRD/CRD");
-CRD.Read(key_to_be_searched);
+CRD.Read(key_to_be_searched, data_path_of_your_datastore);
 ```
 
 ### <strong>Delete</strong>
@@ -55,7 +55,7 @@ This Method can be imported from CRD library.
 
 ```javascript
 const CRD = require("./CRD/CRD");
-CRD.Delete(key_to_be_deleted);
+CRD.Delete(key_to_be_deleted, data_path_of_your_datastore);
 ```
 
 ## How to use it as an API
